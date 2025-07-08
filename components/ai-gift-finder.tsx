@@ -47,18 +47,12 @@ export function AIGiftFinder() {
         }),
       })
 
-      const contentType = response.headers.get("content-type")
-      if (!contentType || !contentType.includes("application/json")) {
-        const textResponse = await response.text()
-        console.error("Non-JSON response:", textResponse)
-        throw new Error("Server returned an invalid response. Please try again.")
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `Server error: ${response.status}`)
       }
 
       const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || `Server error: ${response.status}`)
-      }
 
       if (data.gifts) {
         setGiftIdeas(data.gifts)
@@ -200,7 +194,7 @@ export function AIGiftFinder() {
                     Shopping Tips
                   </div>
                   <ul className="text-sm text-blue-600 space-y-1">
-                    <li>• Click any store button to search for the specific product</li>
+                    <li>• Click any store button to visit the product page directly</li>
                     <li>• Compare prices across different stores for the best deals</li>
                     <li>• Check customer reviews and ratings before purchasing</li>
                     <li>• Look for similar products if exact items are unavailable</li>
@@ -395,7 +389,7 @@ export function AIGiftFinder() {
                   Shopping Tips
                 </div>
                 <ul className="text-sm text-blue-600 space-y-1">
-                  <li>• Click any store button to search for the specific product</li>
+                  <li>• Click any store button to visit the product page directly</li>
                   <li>• Compare prices across different stores for the best deals</li>
                   <li>• Check customer reviews and ratings before purchasing</li>
                   <li>• Look for similar products if exact items are unavailable</li>

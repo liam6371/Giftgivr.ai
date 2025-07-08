@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { generateGiftSuggestionsWithLinks } from "@/lib/gift-database"
+import { searchGoogleShopping } from "@/lib/product-search"
 
 export async function POST(request: NextRequest) {
   try {
@@ -113,52 +114,36 @@ async function findRealProducts(giftText: string): Promise<string> {
       const searchQuery = searchMatch?.[1]?.trim() || name
 
       try {
-        // Search for real products using Google Shopping
-        const productsResponse = await fetch(
-          `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/search-products`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query: searchQuery }),
-          },
-        )
+        // Search for real products using Google Shopping directly
+        console.log(`Searching for: ${searchQuery}`)
+        const products = await searchGoogleShopping(searchQuery)
 
-        if (productsResponse.ok) {
-          const { products } = await productsResponse.json()
+        if (products && products.length > 0) {
+          processedText += `\n\n🛒 **Real Products Found on Google Shopping:**\n`
+          products.slice(0, 3).forEach((product, index) => {
+            processedText += `${index + 1}. **${product.title}**\n`
+            processedText += `   💰 Price: ${product.price}\n`
+            processedText += `   🏪 Store: ${product.source}\n`
 
-          if (products && products.length > 0) {
-            processedText += `\n\n🛒 **Real Products Found on Google Shopping:**\n`
-            products.slice(0, 3).forEach((product: any, index: number) => {
-              processedText += `${index + 1}. **${product.title}**\n`
-              processedText += `   💰 Price: ${product.price}\n`
-              processedText += `   🏪 Store: ${product.source}\n`
-
-              if (product.rating) {
-                processedText += `   ⭐ Rating: ${product.rating}`
-                if (product.reviews) {
-                  processedText += ` (${product.reviews} reviews)`
-                }
-                processedText += `\n`
+            if (product.rating) {
+              processedText += `   ⭐ Rating: ${product.rating}`
+              if (product.reviews) {
+                processedText += ` (${product.reviews} reviews)`
               }
+              processedText += `\n`
+            }
 
-              processedText += `   🔗 **Buy Now**: ${product.link}\n\n`
-            })
-          } else {
-            // Fallback to search link
-            const encodedSearch = encodeURIComponent(searchQuery)
-            processedText += `\n\n🔍 **Search for this product**:\n`
-            processedText += `• Google Shopping: https://www.google.com/search?tbm=shop&q=${encodedSearch}\n`
-            processedText += `• Amazon: https://www.amazon.com/s?k=${encodedSearch}\n`
-          }
+            processedText += `   🔗 **Buy Now**: ${product.link}\n\n`
+          })
         } else {
-          // Fallback to search links
+          // Fallback to search link
           const encodedSearch = encodeURIComponent(searchQuery)
           processedText += `\n\n🔍 **Search for this product**:\n`
           processedText += `• Google Shopping: https://www.google.com/search?tbm=shop&q=${encodedSearch}\n`
           processedText += `• Amazon: https://www.amazon.com/s?k=${encodedSearch}\n`
         }
       } catch (error) {
-        console.error("Product search failed:", error)
+        console.error(`Product search failed for "${searchQuery}":`, error)
         // Fallback to search links
         const encodedSearch = encodeURIComponent(searchQuery)
         processedText += `\n\n🔍 **Search for this product**:\n`
@@ -170,5 +155,8 @@ async function findRealProducts(giftText: string): Promise<string> {
     }
   }
 
+  console.log("=== FINAL PROCESSED TEXT ===")
+  console.log(processedText)
+  console.log("=== END PROCESSED TEXT ===")
   return processedText
 }

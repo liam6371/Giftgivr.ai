@@ -40,67 +40,72 @@ export function GiftResultsDisplay({ giftIdeas, source }: GiftResultsDisplayProp
     const parseGiftIdeas = (text: string): ParsedGift[] => {
       const gifts: ParsedGift[] = []
 
-      // Split by gift sections (looking for **Gift Name** pattern)
-      const sections = text.split(/\*\*([^*]+)\*\*/).filter(Boolean)
+      // Split by gift sections - look for **Product Name** at start of line
+      const giftSections = text.split(/(?=\*\*[^*]+\*\*\n)/g).filter((section) => section.trim())
 
-      for (let i = 0; i < sections.length; i += 2) {
-        const name = sections[i]?.trim()
-        const content = sections[i + 1]?.trim()
+      giftSections.forEach((section) => {
+        // Extract gift name
+        const nameMatch = section.match(/^\*\*([^*]+)\*\*/)
+        if (!nameMatch) return
 
-        if (name && content) {
-          // Extract description
-          const descMatch = content.match(/Description:\s*([^]*?)(?:Price Range:|Search Query:|🛒|🔍|$)/i)
-          const description = descMatch?.[1]?.trim() || content.split("\n")[0]
+        const name = nameMatch[1].trim()
 
-          // Extract price range
-          const priceMatch = content.match(/Price Range:\s*\$?([0-9.,-]+)/i)
-          const priceRange = priceMatch ? `$${priceMatch[1]}` : undefined
+        // Extract description
+        const descMatch = section.match(/Description:\s*([^\n]+)/i)
+        const description = descMatch?.[1]?.trim() || ""
 
-          // Extract search query
-          const searchMatch = content.match(/Search Query:\s*([^\n]+)/i)
-          const searchQuery = searchMatch?.[1]?.trim()
+        // Extract price range
+        const priceMatch = section.match(/Price Range:\s*(\$[^\n]+)/i)
+        const priceRange = priceMatch?.[1]?.trim()
 
-          // Extract real products from Google Shopping
-          const realProducts: RealProduct[] = []
-          const productMatches = content.matchAll(
-            /(\d+)\.\s\*\*([^*]+)\*\*\s*\n\s*💰\s*Price:\s*([^\n]+)\s*\n\s*🏪\s*Store:\s*([^\n]+)\s*(?:\n\s*⭐\s*Rating:\s*([^\n]+))?\s*\n\s*🔗\s*\*\*Buy Now\*\*:\s*(https?:\/\/[^\s\n]+)/g,
-          )
+        // Extract search query
+        const searchMatch = section.match(/Search Query:\s*([^\n]+)/i)
+        const searchQuery = searchMatch?.[1]?.trim()
 
-          for (const match of productMatches) {
-            realProducts.push({
-              title: match[2].trim(),
-              price: match[3].trim(),
-              source: match[4].trim(),
-              rating: match[5]?.trim(),
-              link: match[6].trim(),
-            })
-          }
+        // Find all real products - look for numbered items with Buy Now links
+        const realProducts: RealProduct[] = []
+        const productRegex =
+          /(\d+)\.\s*\*\*([^*]+)\*\*[^]*?💰\s*Price:\s*([^\n]+)[^]*?🏪\s*Store:\s*([^\n]+)[^]*?🔗\s*\*\*Buy Now\*\*:\s*(https?:\/\/[^\s]+)/g
 
-          // Extract fallback links
-          const fallbackLinks: Array<{ store: string; url: string }> = []
+        let productMatch
+        while ((productMatch = productRegex.exec(section)) !== null) {
+          // Also look for rating in this product section
+          const productSection = productMatch[0]
+          const ratingMatch = productSection.match(/⭐\s*Rating:\s*([^\n]+)/)
 
-          // Look for Google Shopping links
-          const googleMatch = content.match(/•\s*Google Shopping:\s*(https?:\/\/[^\s\n]+)/i)
-          if (googleMatch) {
-            fallbackLinks.push({ store: "Google Shopping", url: googleMatch[1] })
-          }
-
-          // Look for Amazon links
-          const amazonMatch = content.match(/•\s*Amazon:\s*(https?:\/\/[^\s\n]+)/i)
-          if (amazonMatch) {
-            fallbackLinks.push({ store: "Amazon", url: amazonMatch[1] })
-          }
-
-          gifts.push({
-            name,
-            description,
-            priceRange,
-            searchQuery,
-            realProducts,
-            fallbackLinks,
+          realProducts.push({
+            title: productMatch[2].trim(),
+            price: productMatch[3].trim(),
+            source: productMatch[4].trim(),
+            rating: ratingMatch?.[1]?.trim(),
+            link: productMatch[5].trim(),
           })
         }
-      }
+
+        // Find fallback search links
+        const fallbackLinks: Array<{ store: string; url: string }> = []
+
+        // Look for Google Shopping links
+        const googleMatch = section.match(/Google Shopping:\s*(https?:\/\/[^\s\n]+)/i)
+        if (googleMatch) {
+          fallbackLinks.push({ store: "Google Shopping", url: googleMatch[1] })
+        }
+
+        // Look for Amazon links
+        const amazonMatch = section.match(/Amazon:\s*(https?:\/\/[^\s\n]+)/i)
+        if (amazonMatch) {
+          fallbackLinks.push({ store: "Amazon", url: amazonMatch[1] })
+        }
+
+        gifts.push({
+          name,
+          description,
+          priceRange,
+          searchQuery,
+          realProducts,
+          fallbackLinks,
+        })
+      })
 
       return gifts
     }
@@ -110,10 +115,34 @@ export function GiftResultsDisplay({ giftIdeas, source }: GiftResultsDisplayProp
   }, [giftIdeas])
 
   if (parsedGifts.length === 0) {
-    // Fallback to original text display
+    // Enhanced fallback with better link detection
+    const processedText = giftIdeas
+      // Make all URLs clickable
+      .replace(
+        /(https?:\/\/[^\s\n]+)/g,
+        '<a href="$1" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 underline font-medium bg-blue-50 px-2 py-1 rounded">🔗 $1</a>',
+      )
+      // Make product names bold
+      .replace(/\*\*([^*]+)\*\*/g, "<strong class='text-lg text-gray-900'>$1</strong>")
+      // Style price ranges
+      .replace(/Price Range: (\$[^\n]+)/g, '<span class="text-green-600 font-semibold">Price Range: $1</span>')
+      // Style store names
+      .replace(/🏪\s*Store:\s*([^\n]+)/g, '<span class="text-purple-600 font-medium">🏪 Store: $1</span>')
+      // Style prices
+      .replace(/💰\s*Price:\s*([^\n]+)/g, '<span class="text-green-600 font-bold">💰 Price: $1</span>')
+
     return (
       <div className="prose prose-gray max-w-none">
-        <div className="whitespace-pre-line text-gray-700 leading-relaxed">{giftIdeas}</div>
+        <div
+          className="whitespace-pre-line text-gray-700 leading-relaxed space-y-2"
+          dangerouslySetInnerHTML={{ __html: processedText }}
+        />
+        <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            <strong>Note:</strong> Click any blue links above to visit the product pages directly. If you don't see
+            formatted product cards, the links are still clickable in the text above.
+          </p>
+        </div>
       </div>
     )
   }
@@ -240,9 +269,11 @@ function GiftCard({ gift, index }: { gift: ParsedGift; index: number }) {
             )}
 
             {/* Fallback Search Links */}
-            {gift.fallbackLinks.length > 0 && gift.realProducts.length === 0 && (
+            {gift.fallbackLinks.length > 0 && (
               <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Search for This Product</h4>
+                <h4 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                  {gift.realProducts.length > 0 ? "More Options" : "Search for This Product"}
+                </h4>
                 <div className="flex flex-wrap gap-2">
                   {gift.fallbackLinks.map((link, linkIndex) => (
                     <a
