@@ -21,23 +21,23 @@ export async function POST(request: NextRequest) {
 
 For each gift, provide:
 1. The exact product name with brand and model (be very specific)
-2. A brief description of why it's perfect
-3. The estimated price
-4. The exact search query that would find this specific product on shopping sites
+2. A brief description of why it's perfect for this person
+3. The estimated price range
+4. A precise search query that would find this product on Google Shopping
 
 Be extremely specific with product names. Include brand names, model numbers, sizes, colors, or versions when relevant.
 
 Format your response exactly like this:
 
 **[Exact Product Name with Brand/Model/Specifications]**
-Description: [Why this specific product is perfect for this person]
-Price: $[estimated price]
-Search Query: [exact terms to find this specific product]
+Description: [Why this specific product is perfect for this person and occasion]
+Price Range: $[min]-$[max]
+Search Query: [precise search terms for Google Shopping]
 
-Example format:
-**Ninja Foodi Personal Blender BN401 18oz Cup**
-Description: Perfect for single-serve smoothies and protein shakes, compact design ideal for small kitchens
-Price: $79.99
+Example:
+**Ninja Foodi Personal Blender BN401 18oz Cup Black**
+Description: Perfect for single-serve smoothies and protein shakes, compact design ideal for small kitchens and health-conscious individuals
+Price Range: $70-$90
 Search Query: Ninja Foodi Personal Blender BN401 18oz
 
 Continue this format for all 5 products.`
@@ -54,7 +54,7 @@ Continue this format for all 5 products.`
             model: "gpt-3.5-turbo",
             messages: [{ role: "user", content: prompt }],
             temperature: 0.7,
-            max_tokens: 1200,
+            max_tokens: 1500,
           }),
         })
 
@@ -62,7 +62,7 @@ Continue this format for all 5 products.`
           const data = await response.json()
           let giftIdeas = data.choices?.[0]?.message?.content || "No ideas generated."
 
-          // Post-process to find real products
+          // Post-process to find real products using Google Shopping
           giftIdeas = await findRealProducts(giftIdeas)
 
           console.log("OpenAI response received and processed successfully")
@@ -109,94 +109,66 @@ async function findRealProducts(giftText: string): Promise<string> {
       processedText += content
 
       // Extract search query
-      const searchQueryMatch = content.match(/Search Query:\s*([^\n]+)/i)
-      const searchQuery = searchQueryMatch?.[1]?.trim() || name
+      const searchMatch = content.match(/Search Query:\s*([^\n]+)/i)
+      const searchQuery = searchMatch?.[1]?.trim() || name
 
       try {
-        // Try to find real products using different APIs
-        const realProducts = await searchRealProducts(searchQuery)
+        // Search for real products using Google Shopping
+        const productsResponse = await fetch(
+          `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/search-products`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query: searchQuery }),
+          },
+        )
 
-        if (realProducts.length > 0) {
-          processedText += `\n\n🛒 **Found Real Products:**\n`
-          realProducts.forEach((product, index) => {
-            processedText += `${index + 1}. **${product.name}** - ${product.price}\n`
-            processedText += `   ${product.store}: ${product.url}\n`
-          })
+        if (productsResponse.ok) {
+          const { products } = await productsResponse.json()
+
+          if (products && products.length > 0) {
+            processedText += `\n\n🛒 **Real Products Found on Google Shopping:**\n`
+            products.slice(0, 3).forEach((product: any, index: number) => {
+              processedText += `${index + 1}. **${product.title}**\n`
+              processedText += `   💰 Price: ${product.price}\n`
+              processedText += `   🏪 Store: ${product.source}\n`
+
+              if (product.rating) {
+                processedText += `   ⭐ Rating: ${product.rating}`
+                if (product.reviews) {
+                  processedText += ` (${product.reviews} reviews)`
+                }
+                processedText += `\n`
+              }
+
+              processedText += `   🔗 **Buy Now**: ${product.link}\n\n`
+            })
+          } else {
+            // Fallback to search link
+            const encodedSearch = encodeURIComponent(searchQuery)
+            processedText += `\n\n🔍 **Search for this product**:\n`
+            processedText += `• Google Shopping: https://www.google.com/search?tbm=shop&q=${encodedSearch}\n`
+            processedText += `• Amazon: https://www.amazon.com/s?k=${encodedSearch}\n`
+          }
         } else {
-          // Fallback to enhanced search links
+          // Fallback to search links
           const encodedSearch = encodeURIComponent(searchQuery)
-          processedText += `\n\n🔍 **Search Links:**\n`
-          processedText += `• Amazon: https://www.amazon.com/s?k=${encodedSearch}\n`
+          processedText += `\n\n🔍 **Search for this product**:\n`
           processedText += `• Google Shopping: https://www.google.com/search?tbm=shop&q=${encodedSearch}\n`
+          processedText += `• Amazon: https://www.amazon.com/s?k=${encodedSearch}\n`
         }
       } catch (error) {
         console.error("Product search failed:", error)
         // Fallback to search links
         const encodedSearch = encodeURIComponent(searchQuery)
-        processedText += `\n\n🔍 **Search Links:**\n`
-        processedText += `• Amazon: https://www.amazon.com/s?k=${encodedSearch}\n`
+        processedText += `\n\n🔍 **Search for this product**:\n`
         processedText += `• Google Shopping: https://www.google.com/search?tbm=shop&q=${encodedSearch}\n`
+        processedText += `• Amazon: https://www.amazon.com/s?k=${encodedSearch}\n`
       }
 
-      processedText += `\n\n`
+      processedText += `\n`
     }
   }
 
   return processedText
-}
-
-async function searchRealProducts(
-  query: string,
-): Promise<Array<{ name: string; price: string; url: string; store: string }>> {
-  const results = []
-
-  try {
-    // Option 1: Use RapidAPI's Real-time Product Search
-    if (process.env.RAPIDAPI_KEY) {
-      const response = await fetch(
-        `https://real-time-product-search.p.rapidapi.com/search?q=${encodeURIComponent(query)}&country=us&language=en`,
-        {
-          headers: {
-            "X-RapidAPI-Key": process.env.RAPIDAPI_KEY,
-            "X-RapidAPI-Host": "real-time-product-search.p.rapidapi.com",
-          },
-        },
-      )
-
-      if (response.ok) {
-        const data = await response.json()
-        if (data.data && data.data.length > 0) {
-          return data.data.slice(0, 3).map((item: any) => ({
-            name: item.product_title,
-            price: item.offer?.price || "Price varies",
-            url: item.product_page_url,
-            store: item.source || "Online Store",
-          }))
-        }
-      }
-    }
-
-    // Option 2: Use SerpAPI for Google Shopping results
-    if (process.env.SERPAPI_KEY) {
-      const response = await fetch(
-        `https://serpapi.com/search.json?engine=google_shopping&q=${encodeURIComponent(query)}&api_key=${process.env.SERPAPI_KEY}`,
-      )
-
-      if (response.ok) {
-        const data = await response.json()
-        if (data.shopping_results && data.shopping_results.length > 0) {
-          return data.shopping_results.slice(0, 3).map((item: any) => ({
-            name: item.title,
-            price: item.price,
-            url: item.link,
-            store: item.source,
-          }))
-        }
-      }
-    }
-  } catch (error) {
-    console.error("Real product search failed:", error)
-  }
-
-  return []
 }
