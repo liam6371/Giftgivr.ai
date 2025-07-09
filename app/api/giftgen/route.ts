@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { generateGiftSuggestionsWithLinks } from "@/lib/gift-database"
-import { searchGoogleShopping } from "@/lib/product-search"
+import { searchAllProducts } from "@/lib/product-search"
 
 export async function POST(request: NextRequest) {
   try {
@@ -63,7 +63,7 @@ Continue this format for all 5 products.`
           const data = await response.json()
           let giftIdeas = data.choices?.[0]?.message?.content || "No ideas generated."
 
-          // Post-process to find real products using Google Shopping
+          // Post-process to find real products using combined search
           giftIdeas = await findRealProducts(giftIdeas)
 
           console.log("OpenAI response received and processed successfully")
@@ -114,13 +114,13 @@ async function findRealProducts(giftText: string): Promise<string> {
       const searchQuery = searchMatch?.[1]?.trim() || name
 
       try {
-        // Search for real products using Google Shopping directly
+        // Search for real products using combined search (Google Shopping + Etsy)
         console.log(`Searching for: ${searchQuery}`)
-        const products = await searchGoogleShopping(searchQuery)
+        const products = await searchAllProducts(searchQuery)
 
         if (products && products.length > 0) {
-          processedText += `\n\n🛒 **Real Products Found on Google Shopping:**\n`
-          products.slice(0, 3).forEach((product, index) => {
+          processedText += `\n\n🛒 **Real Products Found:**\n`
+          products.slice(0, 4).forEach((product, index) => {
             processedText += `${index + 1}. **${product.title}**\n`
             processedText += `   💰 Price: ${product.price}\n`
             processedText += `   🏪 Store: ${product.source}\n`
@@ -141,6 +141,7 @@ async function findRealProducts(giftText: string): Promise<string> {
           processedText += `\n\n🔍 **Search for this product**:\n`
           processedText += `• Google Shopping: https://www.google.com/search?tbm=shop&q=${encodedSearch}\n`
           processedText += `• Amazon: https://www.amazon.com/s?k=${encodedSearch}\n`
+          processedText += `• Etsy: https://www.etsy.com/search?q=${encodedSearch}\n`
         }
       } catch (error) {
         console.error(`Product search failed for "${searchQuery}":`, error)
@@ -149,6 +150,7 @@ async function findRealProducts(giftText: string): Promise<string> {
         processedText += `\n\n🔍 **Search for this product**:\n`
         processedText += `• Google Shopping: https://www.google.com/search?tbm=shop&q=${encodedSearch}\n`
         processedText += `• Amazon: https://www.amazon.com/s?k=${encodedSearch}\n`
+        processedText += `• Etsy: https://www.etsy.com/search?q=${encodedSearch}\n`
       }
 
       processedText += `\n`

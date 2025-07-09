@@ -12,35 +12,35 @@ const categories = [
     description: "The latest gadgets and electronics",
     icon: Laptop,
     color: "bg-blue-100 text-blue-600",
-    link: "/categories/tech",
+    link: "/gift-finder", // Changed to existing page
   },
   {
     name: "Personalized Gifts",
     description: "Unique and customized presents",
     icon: Gift,
     color: "bg-purple-100 text-purple-600",
-    link: "/categories/personalized",
+    link: "/gift-finder", // Changed to existing page
   },
   {
     name: "Fashion & Accessories",
     description: "Stylish clothing and accessories",
     icon: Shirt,
     color: "bg-pink-100 text-pink-600",
-    link: "/categories/fashion",
+    link: "/gift-finder", // Changed to existing page
   },
   {
     name: "Home & Kitchen",
     description: "Practical and decorative home items",
     icon: Home,
     color: "bg-green-100 text-green-600",
-    link: "/categories/home",
+    link: "/gift-finder", // Changed to existing page
   },
   {
     name: "Gaming & Entertainment",
     description: "Fun games and entertainment options",
     icon: Gamepad2,
     color: "bg-red-100 text-red-600",
-    link: "/categories/gaming",
+    link: "/gift-finder", // Changed to existing page
   },
 ]
 

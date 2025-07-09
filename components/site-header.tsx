@@ -37,14 +37,11 @@ export function SiteHeader() {
             <Link href="/categories" className="text-sm font-medium hover:text-primary transition-colors">
               Categories
             </Link>
-            <Link href="/occasions" className="text-sm font-medium hover:text-primary transition-colors">
-              Occasions
-            </Link>
             <Link href="/gift-finder" className="text-sm font-medium hover:text-primary transition-colors">
               Gift Finder
             </Link>
-            <Link href="/trending" className="text-sm font-medium hover:text-primary transition-colors">
-              Trending
+            <Link href="/featured" className="text-sm font-medium hover:text-primary transition-colors">
+              Featured
             </Link>
           </nav>
         </div>
@@ -75,7 +72,10 @@ export function SiteHeader() {
 
           <div className="hidden md:flex items-center gap-4">
             <Link href="/login">
-              <Button variant="outline" className="border-primary text-primary hover:bg-primary/10 btn-modern">
+              <Button
+                variant="outline"
+                className="border-primary text-primary hover:bg-primary/10 btn-modern bg-transparent"
+              >
                 Log In
               </Button>
             </Link>
@@ -108,24 +108,23 @@ export function SiteHeader() {
             <Link href="/categories" className="text-sm font-medium hover:text-primary transition-colors">
               Categories
             </Link>
-            <Link href="/occasions" className="text-sm font-medium hover:text-primary transition-colors">
-              Occasions
-            </Link>
             <Link href="/gift-finder" className="text-sm font-medium hover:text-primary transition-colors">
               Gift Finder
             </Link>
-            <Link href="/trending" className="text-sm font-medium hover:text-primary transition-colors">
-              Trending
+            <Link href="/featured" className="text-sm font-medium hover:text-primary transition-colors">
+              Featured
             </Link>
             <div className="flex flex-col gap-2 mt-4 pt-4 border-t">
-              <Link href="/login">
-                <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary/10 btn-modern">
-                  Log In
-                </Button>
-              </Link>
-              <Link href="/signup">
-                <Button className="w-full bg-secondary hover:bg-secondary/90 text-white btn-modern">Sign Up</Button>
-              </Link>
+              <Button
+                variant="outline"
+                className="w-full border-primary text-primary hover:bg-primary/10 btn-modern bg-transparent"
+                disabled
+              >
+                Log In (Coming Soon)
+              </Button>
+              <Button className="w-full bg-secondary hover:bg-secondary/90 text-white btn-modern" disabled>
+                Sign Up (Coming Soon)
+              </Button>
             </div>
           </nav>
         </motion.div>

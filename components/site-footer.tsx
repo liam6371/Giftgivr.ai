@@ -35,29 +35,25 @@ export function SiteFooter() {
             <h3 className="text-sm font-semibold mb-4">Gift Categories</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/categories/tech" className="text-sm text-gray-500 hover:text-primary">
-                  Tech Gifts
+                <Link href="/categories" className="text-sm text-gray-500 hover:text-primary">
+                  All Categories
                 </Link>
               </li>
               <li>
-                <Link href="/categories/personalized" className="text-sm text-gray-500 hover:text-primary">
-                  Personalized Gifts
+                <Link href="/featured" className="text-sm text-gray-500 hover:text-primary">
+                  Featured Gifts
                 </Link>
               </li>
               <li>
-                <Link href="/categories/fashion" className="text-sm text-gray-500 hover:text-primary">
-                  Fashion & Accessories
+                <Link href="/gift-finder" className="text-sm text-gray-500 hover:text-primary">
+                  AI Gift Finder
                 </Link>
               </li>
               <li>
-                <Link href="/categories/home" className="text-sm text-gray-500 hover:text-primary">
-                  Home & Kitchen
-                </Link>
+                <span className="text-sm text-gray-400">Tech Gifts (Coming Soon)</span>
               </li>
               <li>
-                <Link href="/categories/gaming" className="text-sm text-gray-500 hover:text-primary">
-                  Gaming & Entertainment
-                </Link>
+                <span className="text-sm text-gray-400">Gaming Gifts (Coming Soon)</span>
               </li>
             </ul>
           </div>
@@ -66,29 +62,19 @@ export function SiteFooter() {
             <h3 className="text-sm font-semibold mb-4">Company</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/about" className="text-sm text-gray-500 hover:text-primary">
-                  About Us
-                </Link>
+                <span className="text-sm text-gray-400">About Us (Coming Soon)</span>
               </li>
               <li>
-                <Link href="/contact" className="text-sm text-gray-500 hover:text-primary">
-                  Contact
-                </Link>
+                <span className="text-sm text-gray-400">Contact (Coming Soon)</span>
               </li>
               <li>
-                <Link href="/privacy" className="text-sm text-gray-500 hover:text-primary">
-                  Privacy Policy
-                </Link>
+                <span className="text-sm text-gray-400">Privacy Policy (Coming Soon)</span>
               </li>
               <li>
-                <Link href="/terms" className="text-sm text-gray-500 hover:text-primary">
-                  Terms of Service
-                </Link>
+                <span className="text-sm text-gray-400">Terms of Service (Coming Soon)</span>
               </li>
               <li>
-                <Link href="/affiliate" className="text-sm text-gray-500 hover:text-primary">
-                  Affiliate Disclosure
-                </Link>
+                <span className="text-sm text-gray-400">Affiliate Disclosure (Coming Soon)</span>
               </li>
             </ul>
           </div>

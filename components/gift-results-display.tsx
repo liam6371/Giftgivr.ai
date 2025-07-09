@@ -175,6 +175,7 @@ function GiftCard({ gift, index }: { gift: ParsedGift; index: number }) {
     if (store.includes("walmart")) return "bg-blue-50 border-blue-200 text-blue-800"
     if (store.includes("target")) return "bg-red-50 border-red-200 text-red-800"
     if (store.includes("best buy")) return "bg-yellow-50 border-yellow-200 text-yellow-800"
+    if (store.includes("awin") || store.includes("partner")) return "bg-purple-50 border-purple-200 text-purple-800"
     return "bg-gray-50 border-gray-200 text-gray-800"
   }
 

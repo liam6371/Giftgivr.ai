@@ -38,9 +38,12 @@ export default function LandingPage() {
                       Gift Smarter
                     </Button>
                   </Link>
-                  <Link href="/categories">
-                    <Button variant="outline" className="border-primary text-primary px-8 py-6 text-lg btn-modern">
-                      Browse Categories
+                  <Link href="/featured">
+                    <Button
+                      variant="outline"
+                      className="border-primary text-primary px-8 py-6 text-lg btn-modern bg-transparent"
+                    >
+                      Browse Featured
                     </Button>
                   </Link>
                 </div>
