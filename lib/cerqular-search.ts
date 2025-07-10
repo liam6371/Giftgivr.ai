@@ -15,7 +15,7 @@ export interface CerqularProduct {
 export async function searchCerqularProducts(searchTerm = "sustainable"): Promise<CerqularProduct[]> {
   const awinApiKey = process.env.AWIN_API_KEY
   const publisherId = process.env.AWIN_PUBLISHER_ID || "2104361"
-  const advertiserId = "114021" // Cerqular's advertiser ID
+  const advertiserId = "114046" // Cerqular's advertiser ID
 
   if (!awinApiKey) {
     console.log("AWIN API key not configured")
@@ -88,7 +88,7 @@ export async function searchCerqularProducts(searchTerm = "sustainable"): Promis
 async function searchCerqularProductsAlternative(searchTerm: string): Promise<CerqularProduct[]> {
   const awinApiKey = process.env.AWIN_API_KEY
   const publisherId = process.env.AWIN_PUBLISHER_ID || "2104361"
-  const advertiserId = "114021"
+  const advertiserId = "114046"
 
   if (!awinApiKey) return []
 
@@ -261,7 +261,7 @@ function getFallbackCerqularProducts(searchTerm: string): CerqularProduct[] {
 
 // Generate Cerqular deep link with proper AWIN tracking
 function generateCerqularDeepLink(productId: string, publisherId: string): string {
-  const advertiserId = "114021"
+  const advertiserId = "114046"
 
   // Create a proper AWIN deep link
   const baseUrl = `https://www.awin1.com/cread.php`

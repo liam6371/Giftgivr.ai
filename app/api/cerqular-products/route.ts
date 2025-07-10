@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 
 export async function GET() {
   try {
-    const advertiserId = process.env.CERQULAR_ADVERTISER_ID || "114021"
+    const advertiserId = process.env.CERQULAR_ADVERTISER_ID || "114046"
     const awinToken = process.env.AWIN_API_KEY
     const publisherId = process.env.AWIN_PUBLISHER_ID || "2104361"
 
@@ -63,7 +63,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const { search } = await request.json()
-    const advertiserId = process.env.CERQULAR_ADVERTISER_ID || "114021"
+    const advertiserId = process.env.CERQULAR_ADVERTISER_ID || "114046"
     const awinToken = process.env.AWIN_API_KEY
     const publisherId = process.env.AWIN_PUBLISHER_ID || "2104361"
 

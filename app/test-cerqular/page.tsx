@@ -67,7 +67,7 @@ export default function TestCerqularPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             🌱 Cerqular Test
-            <Badge variant="secondary">Advertiser ID: 114021</Badge>
+            <Badge variant="secondary">Advertiser ID: 114046</Badge>
           </CardTitle>
           <p className="text-gray-600">Test the Cerqular sustainable products integration via AWIN</p>
         </CardHeader>
@@ -163,7 +163,7 @@ export default function TestCerqularPage() {
           <div className="bg-green-50 border border-green-200 rounded-lg p-4">
             <h4 className="font-medium text-green-800 mb-2">🌱 Cerqular Integration:</h4>
             <ul className="text-sm text-green-600 space-y-1">
-              <li>• Advertiser ID: 114021 in your AWIN network</li>
+              <li>• Advertiser ID: 114046 in your AWIN network</li>
               <li>• Specializes in sustainable and eco-friendly products</li>
               <li>• All links are tracked through your AWIN publisher account</li>
               <li>• Perfect for environmentally conscious gift recipients</li>
