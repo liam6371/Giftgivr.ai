@@ -1,6 +1,7 @@
 import { SiteHeader } from "@/components/site-header"
 import GiftCategoryTabs from "@/components/gift-category-tabs"
 import AmazonDisclosure from "@/components/amazon-disclosure"
+import AwinProductGrid from "@/components/awin-product-grid"
 
 export default function CategoriesPage() {
   return (
@@ -19,6 +20,8 @@ export default function CategoriesPage() {
               <div className="max-w-4xl mx-auto">
                 <GiftCategoryTabs />
               </div>
+              <AwinProductGrid title="" category="tech" />
+              <AwinProductGrid title="" category="gaming" />
             </div>
           </div>
         </section>

@@ -7,6 +7,7 @@ import { FeatureSection } from "@/components/feature-section"
 import { HowItWorksSection } from "@/components/how-it-works-section"
 import { NewsletterSection } from "@/components/newsletter-section"
 import { FeaturedGiftsSection } from "@/components/featured-gifts-section"
+import { FunFactShowcase } from "@/components/funfact-showcase"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -80,6 +81,9 @@ export default function LandingPage() {
 
         {/* Featured Gifts Section */}
         <FeaturedGiftsSection />
+
+        {/* Fun Fact Co. Showcase */}
+        <FunFactShowcase />
 
         {/* How It Works Section */}
         <HowItWorksSection />
